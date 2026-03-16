@@ -1,7 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
 
 function App() {
+  const [result, setResult] = useState(null);
+
   const canvasRef = useRef(null);
   const fabricRef = useRef(null);
 
@@ -50,7 +52,7 @@ function App() {
   };
 
   // Submit function
-  const submitDoodle = () => {
+  const submitDoodle = async  () => {
   const canvas = fabricRef.current;
 
   if (!canvas) return;
@@ -60,7 +62,17 @@ function App() {
     quality: 1
   });
 
-  console.log(image);
+  const res = await fetch("http://127.0.0.1:8000/generate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ image })
+  });
+
+  const data = await res.json();
+
+  setResult(data.preview);
 };
 
   return (
@@ -113,9 +125,24 @@ function App() {
           <button onClick={submitDoodle}>
             Submit
           </button>
-          
-        </div>
+
+        </div>        
       </div>
+
+      {/*RESULT */}
+          {result && (
+            <div style={{ marginTop: 30 }}>
+              <h2>Result</h2>
+
+              <img
+                src={result}
+                style={{
+                  width: 400,
+                  border: "2px solid black"
+                }}
+              />
+            </div>
+          )}
     </div>
   );
 }
