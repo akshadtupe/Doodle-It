@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
 
-function App() {
-  const [result, setResult] = useState(null);
 
+
+function App() {
+
+  const [loading, setLoading] = useState(false);
+
+  const [result, setResult] = useState(null);
+  const [style,setStyle] = useState("realistic");
   const canvasRef = useRef(null);
   const fabricRef = useRef(null);
 
@@ -34,6 +39,7 @@ function App() {
     if (!canvas) return;
 
     canvas.clear();
+    canvas.backgroundColor = "white";
    
   };
 
@@ -57,6 +63,8 @@ function App() {
 
   if (!canvas) return;
 
+  setLoading(true);
+
   const image = canvas.toDataURL({
     format: "png",
     quality: 1
@@ -67,12 +75,16 @@ function App() {
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ image })
+    body: JSON.stringify({ 
+      image, 
+      style 
+    })
   });
 
   const data = await res.json();
 
   setResult(data.preview);
+  setLoading(false);
 };
 
   return (
@@ -122,13 +134,26 @@ function App() {
 
           <input type="range" min="1" max="30" onChange={changeBrush} />
 
+          <h4>Select Style</h4>
+          <select
+            value={style}
+            onChange={(e) => setStyle(e.target.value)}
+          >
+            <option value="realistic">Realistic</option>
+            <option value="cartoon">Cartoon</option>
+            <option value="anime">Anime</option>
+            <option value="3d">3D</option>
+          </select>
+
           <button onClick={submitDoodle}>
             Submit
           </button>
 
+          
+
         </div>        
       </div>
-
+        {loading && <h2>Loading...</h2>}
       {/*RESULT */}
           {result && (
             <div style={{ marginTop: 30 }}>
