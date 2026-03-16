@@ -16,6 +16,7 @@ function App() {
     canvas.isDrawingMode = true;
     canvas.freeDrawingBrush.width = 5;
     canvas.freeDrawingBrush.color = "black";
+    canvas.backgroundColor = "white";
   };
 
   useEffect(() => {
@@ -65,27 +66,30 @@ function App() {
 
   setLoading(true);
 
-  const image = canvas.toDataURL({
-    format: "png",
-    quality: 1
-  });
+  canvas.lowerCanvasEl.toBlob(async (blob) => {
+    const formData = new FormData();
+    formData.append("file",blob,"doodle.png");
+    formData.append("style", style);
 
-  const res = await fetch("http://127.0.0.1:8000/generate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ 
-      image, 
-      style 
-    })
-  });
 
-  const data = await res.json();
+  
 
-  setResult(data.preview);
-  setLoading(false);
-};
+  try {
+        const res = await fetch("http://127.0.0.1:8000/generate", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        setResult(data.preview);
+      } catch (error) {
+        console.error("Failed to submit doodle:", error);
+      } finally {
+        setLoading(false);
+      }
+    });
+  };
+
 
   return (
     <div

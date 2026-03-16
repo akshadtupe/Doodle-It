@@ -1,16 +1,15 @@
 from fastapi import FastAPI
 import time
+from fastapi import UploadFile, File, Form
 
 app = FastAPI()
 
 @app.post("/generate")
-def generate(data: dict):
+def generate( file:UploadFile = File(...), style:str = Form(...) ):
 
-    style = data.get("style")  
-    print("ML service generating image...", style)
-
-    time.sleep(2)   #fake AI thinking
+    print("Ml received file:", file.filename)
+    print("Ml received style:", style)
 
     return {
-        "image": "https://picsum.photos/500"
+        "image": f"https://picsum.photos/seed/{style}/500"
     }

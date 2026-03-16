@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 from pydantic import BaseModel
 import httpx
+from fastapi import UploadFile, File, Form
+
 
 load_dotenv()
 
@@ -25,21 +27,20 @@ class DoodleInput(BaseModel):
     style: str
 
 @app.post("/generate")
-async def generate(data: DoodleInput):
-    print("backend Received doodle")
-    print("Doodle style:", data.style)  
+async def generate( file:UploadFile = File(...), style:str = Form(...) ):
+
+    print("Received file:", file.filename)
+    print("Doodle style:", style)  
 
     async with httpx.AsyncClient() as client:
         res=await client.post(
             "http://localhost:8001/generate",
-            json={
-                "image": data.image,
-                "style": data.style
-            }
+            files={"file": await file.read()},
+            data={"style": style}
         )
 
     ml_response = res.json()
-    print("Received from ML service:", ml_response)
+    
 
     return {
         "preview": ml_response["image"]
