@@ -32,7 +32,7 @@ async def generate( file:UploadFile = File(...), style:str = Form(...) ):
     print("Received file:", file.filename)
     print("Doodle style:", style)  
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=None) as client:
         res=await client.post(
             "http://localhost:8001/generate",
             files={"file": await file.read()},
