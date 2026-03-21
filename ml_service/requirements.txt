@@ -10,3 +10,5 @@ safetensors
 opencv-python
 numpy
 pillow
+
+peft
